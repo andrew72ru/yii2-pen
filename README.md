@@ -34,8 +34,9 @@ First, for multiple string text (like textarea).
 This code add a editable `section` element to your form and make a `p` tag in there for each paragraph.
 
 ```php
-
-    <?= $form->field($model, 'text')->widget(andrew72ru\pen\Pen::className()) ?>
+    use andrew72ru\pen\Pen;
+    
+    echo $form->field($model, 'text')->widget(andrew72ru\pen\Pen::className());
 ```
 
 Second add a inline-editing feature – for headers and other one-line texts.
@@ -43,13 +44,14 @@ Second add a inline-editing feature – for headers and other one-line texts.
 This code make a `h1` tag with `page-geader` class an add `editablecontent` to there.
 
 ```php
-
-    <?= $form->field($model, 'title')->widget(Pen::className(), [
+    use andrew72ru\pen\Pen;
+    
+    echo $form->field($model, 'title')->widget(Pen::className(), [
         'clientOptions' => [
             'inline' => true,
             'tag' => 'h1',
             'class' => 'page-header'
         ]
-    ]) ?>
+    ]);
 ```
 
