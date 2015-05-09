@@ -11,17 +11,17 @@
     }
   ],
   "require": {
-    "yiisoft/yii2": "*",
-    "bower-asset/pen": "~0.0.2"
+    "yiisoft/yii2": "*"
   },
   "autoload": {
     "psr-4": {
       "andrew72ru\\pen\\": "src"
     }
   },
-  "extra": {
-    "asset-installer-paths": {
-      "bower-asset-library": "vendor/bower"
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/andrew72ru/yii2-pen"
     }
-  }
+  ]
 }
