@@ -39,7 +39,7 @@ This code add a editable `section` element to your form and make a `p` tag in th
     echo $form->field($model, 'text')->widget(andrew72ru\pen\Pen::className());
 ```
 
-Second add a inline-editing feature – for headers and other one-line texts.
+Next case add a inline-editing feature – for headers and other one-line texts.
 
 This code make a `h1` tag with `page-geader` class an add `editablecontent` to there.
 
