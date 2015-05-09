@@ -25,7 +25,31 @@ to the require section of your `composer.json` file.
 Usage
 -----
 
-Once the extension is installed, simply use it in your code by  :
+Use this in Active Form.
+
+There is two cases of usage.
+
+First, for multiple string text (like textarea).
+
+This code add a editable `section` element to your form and make a `p` tag in there for each paragraph.
 
 ```php
-<?= \andrew72ru\pen\AutoloadExample::widget(); ?>```
+
+    <?= $form->field($model, 'text')->widget(andrew72ru\pen\Pen::className()) ?>
+```
+
+Second add a inline-editing feature – for headers and other one-line texts.
+
+This code make a `h1` tag with `page-geader` class an add `editablecontent` to there.
+
+```php
+
+    <?= $form->field($model, 'title')->widget(Pen::className(), [
+        'clientOptions' => [
+            'inline' => true,
+            'tag' => 'h1',
+            'class' => 'page-header'
+        ]
+    ]) ?>
+```
+
