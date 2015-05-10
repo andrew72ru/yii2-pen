@@ -7,6 +7,7 @@ use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use yii\web\JsExpression;
+use yii\helpers\Markdown;
 
 /**
  * This is just an example.
@@ -23,9 +24,24 @@ class Pen extends Widget
         $this->targetId = $this->options['id'] . '-e';
         $view = $this->getView();
         PenAsset::register($view);
-        $this->initJs = <<<JS
+        ToMarkdownAsset::register($view);
 
+        $this->initJs = <<<JS
+var tomd = function(text) {
+    var options = {
+        gfm: true,
+        converters: [
+            {
+                filter: ['br'],
+                replacement: function(content) { return '<br>'; }
+            }
+        ]
+    };
+    var converted = toMarkdown(text, options);
+    return converted;
+}
 JS;
+        $view->registerJs($this->initJs, $view::POS_HEAD);
 
     }
 
@@ -40,10 +56,17 @@ JS;
                     'target' => $this->options['id']
                 ]
             ]);
-            if(isset($this->clientOptions['inline']) && isset($this->clientOptions['tag']))
-                echo Html::tag($this->clientOptions['tag'], (Html::getAttributeValue($this->model, $this->attribute)), $tagOptions);
+
+            if(isset($this->clientOptions['inline']))
+            {
+                $value = Markdown::processParagraph(Html::getAttributeValue($this->model, $this->attribute));
+                echo Html::tag($this->clientOptions['tag'] ?: 'p', $value, $tagOptions);
+            }
             else
-                echo Html::tag('section', Html::tag('p', Html::getAttributeValue($this->model, $this->attribute)), $tagOptions);
+            {
+                $value = Markdown::process(Html::getAttributeValue($this->model, $this->attribute), 'gfm');
+                echo Html::tag('section', Html::tag($this->clientOptions['tag'] ?: 'p', $value), $tagOptions);
+            }
 
             echo Html::activeHiddenInput($this->model, $this->attribute);
         }
@@ -76,18 +99,32 @@ JS;
             ];
         }
         if(isset($this->clientOptions['inline']))
-            $menuList = ['italic'];
+            $menuList = ['italic', 'bold', 'underline'];
 
-        $defaultOptions = [
+        $defaultOptions = Json::encode([
             'editor' => new JsExpression('document.getElementById(\'' . $this->targetId . '\')'),
             'class' => 'pen',
             'debug' => false,
             'stay' => false,
             'list' => $menuList
-        ];
-        $json = Json::encode($defaultOptions);
-        $this->getView()->registerJs("var editor = new Pen({$json});");
-        $this->getView()->registerJs("$('#{$this->targetId}').parents('.form-group').find('label,.help-block').remove()");
-        $this->getView()->registerJs("$('#{$this->targetId}').on('click focus blur keyup', function(e){ $('#' + $(this).data('target')).val($(this).html()); });");
+        ]);
+
+        $view = $this->getView();
+
+        // Add editor to object
+        $view->registerJs("var editor = new Pen({$defaultOptions});");
+
+        // Remove additional form elements (because i can, that why)
+        $view->registerJs("$('#{$this->targetId}').parents('.form-group').find('label,.help-block').remove()");
+
+        // Add a html to markdown converter to content
+        $view->registerJs("$('#{$this->targetId}').on('click focus blur keyup',
+            function(e){ $('#' + $(this).data('target')).val(tomd($(this).html())); });");
+
+        // Do not add line break if it inline editor
+        if(isset($this->clientOptions['inline']))
+        {
+            $view->registerJs("$('#{$this->targetId}').on('keypress', function(e){ if(e.keyCode == 13) return false; });");
+        }
     }
 }
