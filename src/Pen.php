@@ -7,6 +7,7 @@ use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use yii\web\JsExpression;
+use Michelf\MarkdownExtra;
 use yii\helpers\Markdown;
 
 /**
@@ -64,7 +65,7 @@ JS;
             }
             else
             {
-                $value = Markdown::process(Html::getAttributeValue($this->model, $this->attribute), 'gfm');
+                $value = MarkdownExtra::defaultTransform(Html::getAttributeValue($this->model, $this->attribute));
                 echo Html::tag('section', Html::tag($this->clientOptions['tag'] ?: 'p', $value), $tagOptions);
             }
 
