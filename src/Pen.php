@@ -30,11 +30,26 @@ class Pen extends Widget
         $this->initJs = <<<JS
 var tomd = function(text) {
     var options = {
-        gfm: true,
         converters: [
             {
                 filter: ['br'],
                 replacement: function(content) { return '<br>'; }
+            },
+            {
+                filter: ['div'],
+                replacement: function(content, node) {
+                    var retObj = document.createElement('div');
+                    $(node).each(function(){
+                        $.each(this.attributes, function(){
+                            if(this.specified) { $(retObj).attr(this.name, this.value) }
+                        });
+                    });
+                    $(retObj).attr('markdown', 1);
+                    $(retObj).html(content);
+                    var wrapper = document.createElement('div');
+                    wrapper.appendChild(retObj)
+                    return wrapper.innerHTML;
+                }
             }
         ]
     };
